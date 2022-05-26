@@ -1,0 +1,26 @@
+<!-- Navbar.stories.mdx-->
+
+import { Meta, Story, Canvas } from '@storybook/addon-docs'
+
+import { Navbar } from './Navbar'
+
+<Meta title="Components/Navbar" component={Navbar} />
+
+# Navbar
+
+This component shows Navbar menu. It accepts below arguments:
+
+-   onLogout
+
+export const Template = (args) => <Navbar {...args} />
+
+<Canvas>
+    <Story
+        name="noArg"
+        args={{
+            default: undefined,
+        }}
+    >
+        {Template.bind({})}
+    </Story>
+</Canvas>

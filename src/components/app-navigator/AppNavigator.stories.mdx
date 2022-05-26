@@ -1,0 +1,24 @@
+<!-- AppNavigator.stories.mdx-->
+
+import { Meta, Story, Canvas } from '@storybook/addon-docs'
+
+import { AppNavigator } from './AppNavigator'
+
+<Meta title="Components/AppNavigator" component={AppNavigator} />
+
+# AppNavigator
+
+This component is a entry point for routing & rendering other components/pages. It doesn't take any arguments and won't show anything on storybook screen.
+
+export const Template = (args) => <AppNavigator {...args} />
+
+<Canvas>
+    <Story
+        name="noArg"
+        args={{
+            default: undefined,
+        }}
+    >
+        {Template.bind({})}
+    </Story>
+</Canvas>

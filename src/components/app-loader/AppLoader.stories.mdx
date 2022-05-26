@@ -1,0 +1,24 @@
+<!-- AppLoader.stories.mdx-->
+
+import { Meta, Story, Canvas } from '@storybook/addon-docs'
+
+import { AppLoader } from './AppLoader'
+
+<Meta title="Components/AppLoader" component={AppLoader} />
+
+# AppLoader
+
+This component is shown while loading the application. It doesn't take any arguments and show default loader image with circle.
+
+export const Template = (args) => <AppLoader {...args} />
+
+<Canvas>
+    <Story
+        name="noArg"
+        args={{
+            default: undefined,
+        }}
+    >
+        {Template.bind({})}
+    </Story>
+</Canvas>
