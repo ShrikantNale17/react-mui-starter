@@ -10,23 +10,35 @@ import Avatar from '@mui/material/Avatar';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-// import ShareIcon from '@mui/icons-material/Share';
 import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
+import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
-import { Paper } from '@mui/material';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import { AccountCircle } from '@mui/icons-material';
+import { Box, Button, Container, Link, ListItemButton, Paper, Stack, TextField } from '@mui/material';
 import Skeleton from '@mui/material/Skeleton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Divider from '@mui/material/Divider';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
 import VisibilitySensor from 'react-visibility-sensor';
 import { useDispatch } from 'react-redux'
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
 import Content from './CardContent';
-import Actions from './CardActions';
+import Actions from './PostCardActions';
 import Media from './CardMedia';
 import CardCarousel from './Carousel';
 import { likePost } from './card-slice/CardSlice';
+import PostModal from '../modal/PostModal'
+import PostCardHeader from './PostCardHeader';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -53,9 +65,22 @@ export default function Post(props: any) {
 
     const { _id, caption, comments, image, likes, createdBy, createdAt } = props;
 
+    console.log(comments);
+
     const [loading, setLoading] = React.useState(true)
     const [expanded, setExpanded] = React.useState(false);
     const [play, setPlay] = React.useState(false);
+    const [comment, setComment] = React.useState('')
+    const [open, setOpen] = React.useState(false);
+
+    const handleOpen = () => {
+        setPlay(false)
+        setOpen(true);
+    }
+    const handleClose = () => {
+        setOpen(false);
+        setPlay(true)
+    }
 
     const handleExpandClick = React.useCallback(() => {
         setExpanded(!expanded);
@@ -63,23 +88,6 @@ export default function Post(props: any) {
 
     const isLoaded = async () => {
         setLoading(false)
-    }
-
-    const isInViewport = (id: any) => {
-        const el: any = document.getElementById(`${id}`)
-
-        const rect = el.getBoundingClientRect();
-        console.log(id);
-        console.log(rect);
-        console.log(window.innerHeight);
-        return (
-            rect?.top >= 0 &&
-            rect?.left >= 0 &&
-            rect?.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-            // rect?.bottom >= 0 &&
-            rect?.right <= (window.innerWidth || document.documentElement.clientWidth)
-
-        );
     }
 
     const m_caption = React.useMemo(() => {
@@ -104,72 +112,21 @@ export default function Post(props: any) {
     }
 
     return (
-        <Paper elevation={12} sx={{ width: 400, my: 2 }} >
-            <CardHeader
-                avatar={
-                    createdBy ?
-                        <Avatar sx={{ bgcolor: red[500] }} aria-label="profile_pic" src={`http://localhost:8080/${createdBy.image}`}>
-                            {createdBy.firstname.charAt(0) + createdBy.lastname.charAt(0)}
-                        </Avatar> :
-                        <Skeleton animation="wave" variant="circular" width={40} height={40} />
-                }
-                action={
-                    <IconButton aria-label="settings">
-                        <MoreVertIcon />
-                    </IconButton>
-                }
-                title={createdBy ?
-                    createdBy.firstname + ' ' + createdBy.lastname :
-                    <Skeleton
-                        animation="wave"
-                        height={25}
-                        width="80%"
-                    // style={{ marginBottom: 2 }}
-                    />}
-                subheader={_id ?
-                    _id :
-                    <Skeleton
-                        animation="wave"
-                        height={15}
-                        width="60%"
-                    // style={{ marginBottom: 6 }}
-                    />}
-            />
-            {/* {image ?
-                loading ?
-                    <>
-                        <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
-                        <CardMedia
-                            component="img"
-                            width='100%'
-                            image={`http://localhost:8080/${image[0].filename}`}
-                            alt="Paella dish"
-                            onLoad={() => isLoaded()}
-                            sx={{ objectFit: 'cover', maxHeight: '300px', display: 'none' }}
-                        />
-                    </> :
-                    <CardMedia
-                        component="img"
-                        width='100%'
-                        image={`http://localhost:8080/${image[0].filename}`}
-                        alt="Paella dish"
-                        onLoad={() => isLoaded()}
-                        sx={{ objectFit: 'cover', maxHeight: '300px' }}
-                    />
-                :
-                <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
-            } */}
+        <Paper elevation={2} sx={{ width: 400, my: 2, fontFamily: 'Public Sans' }} >
+
+            <PostCardHeader _id={_id} createdBy={createdBy} />
+
             {image ?
                 loading ?
                     <>
-                        <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
+                        <Skeleton sx={{ width: '100%', height: '400px' }} animation="wave" variant="rectangular" />
                         <CardMedia
                             component="img"
                             width='100%'
                             image={`http://localhost:8080/${image[0].filename}`}
                             alt="Paella dish"
                             onLoad={() => isLoaded()}
-                            sx={{ objectFit: 'cover', maxHeight: '300px', display: 'none' }}
+                            sx={{ objectFit: 'cover', maxHeight: '400px', display: 'none' }}
                         />
                     </> :
                     <VisibilitySensor
@@ -177,60 +134,140 @@ export default function Post(props: any) {
                             setPlay(isVisible)
                         }}
                     >
-                        <Media image={image} postId={_id} isInViewport={isInViewport} play={play} />
+                        <Media image={image} postId={_id} play={play} />
                     </VisibilitySensor>
                 :
                 <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
             }
             {/* <CardCarousel image={image} /> */}
-            {/* <Content caption={m_caption} /> */}
-            <CardContent>
-                {
-                    caption ?
-                        <Typography variant="body2" color="text.secondary">
-                            {caption}
-                        </Typography> :
-                        <Skeleton
-                            animation="wave"
-                            height={20}
-                            width="100%"
-                        // style={{ marginBottom: 2 }}
-                        />
-                }
-            </CardContent>
+
             {/* <Actions setLoading={setLoading} likes={m_likes} comments={m_comments} expanded={expanded} handleExpandClick={handleExpandClick} /> */}
-            <CardActions disableSpacing>
+            <CardActions disableSpacing sx={{ py: 0, height: 40 }}>
                 <IconButton aria-label="add to favorites" onClick={handleLike}>
                     {
                         likes?.includes(currentUser._id) ?
-                            <FavoriteIcon color='error' /> :
-                            <FavoriteIcon />
+                            <FavoriteIcon sx={{ color: '#ff0000', height: 30 }} /> :
+                            <FavoriteBorderIcon />
                     }
-
-                    {likes?.length}
                 </IconButton>
-                <ExpandMore
-                    expand={expanded}
-                    onClick={handleExpandClick}
-                    aria-expanded={expanded}
-                    aria-label="show more"
-                >
-                    <CommentOutlinedIcon />
-                    {comments?.length}
-                </ExpandMore>
+                <IconButton aria-label="comments" onClick={handleOpen}>
+                    <ChatBubbleOutlineOutlinedIcon />
+                </IconButton>
                 <IconButton aria-label="save post" sx={{ marginLeft: 'auto' }}>
                     <BookmarkBorderRoundedIcon />
                 </IconButton>
             </CardActions>
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <CardContent>
-                    <Typography paragraph>Method:</Typography>
-                    {/* <Typography paragraph>
-                        Heat 1/2 cup of the broth in a pot until simmering, add saffron and set
-                        aside for 10 minutes.
-                    </Typography> */}
+            {likes?.length > 0 &&
+                <CardContent sx={{ py: '2px' }}>
+                    <Typography variant="body2" color="#000000" fontSize={14} fontWeight={400} fontFamily='Public Sans' >
+                        {likes.length > 1 ? `${likes.length} likes` : `1 like`}
+                    </Typography>
+                </CardContent>
+            }
+
+            {/* <Content caption={m_caption} /> */}
+            <CardContent sx={{ py: '0px' }}>
+                {
+                    caption ?
+                        <Stack flexDirection={'row'} alignItems='center' gap={1}>
+                            <Typography variant="subtitle2" color="#212B36" fontSize={14} fontWeight={600} fontFamily='Public Sans' >
+                                {createdBy.firstname + ' ' + createdBy.lastname}
+                            </Typography>
+                            <Typography variant="body2" color="#000000" fontSize={14} fontWeight={400} fontFamily='Public Sans' >
+                                {caption}
+                            </Typography>
+                        </Stack> :
+                        <Skeleton
+                            animation="wave"
+                            height={20}
+                            width="100%"
+                        />
+                }
+            </CardContent>
+            {
+                comments?.length > 0 &&
+                <CardContent sx={{ py: '0px' }}>
+                    <Link underline='none' sx={{ cursor: 'pointer' }} onClick={handleOpen}>
+                        <Typography variant="body2" color="text.secondary" fontFamily='Public Sans'>
+                            {comments.length > 1 ? `View all ${comments?.length} comments` : `View comment`}
+                        </Typography>
+                    </Link>
+                </CardContent>
+            }
+
+            <Collapse in={expanded} timeout="auto" unmountOnExit sx={{ pb: 0 }}>
+                <CardContent sx={{ py: '0px' }}>
+                    <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                        {
+                            comments?.map((comment: any, index: number) => {
+                                return (
+                                    <ListItem key={comment._id} alignItems="flex-start" disablePadding>
+                                        <ListItemButton sx={{ paddingLeft: '0px', alignItems: 'flex-start' }}>
+                                            <ListItemAvatar sx={{ minWidth: '35px', mt: '0.1rem' }}>
+                                                {
+                                                    comment.commentedBy.image ?
+                                                        <Avatar sx={{ bgcolor: red[500], width: 30, height: 30 }} aria-label="profile_pic" src={`http://localhost:8080/${comment?.commentedBy?.image}`}>
+                                                            {comment.commentedBy.firstname.charAt(0) + comment.commentedBy.lastname.charAt(0)}
+                                                        </Avatar> :
+                                                        <Skeleton animation="wave" variant="circular" width={40} height={40} />
+                                                }
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                // primary={comment.commentedBy.firstname + " " + comment.commentedBy.lastname}
+                                                secondary={
+                                                    <React.Fragment>
+                                                        <Typography
+                                                            sx={{ display: 'inline' }}
+                                                            component="span"
+                                                            variant="body2"
+                                                            color="text.primary"
+                                                            fontFamily='Public Sans'
+                                                        >
+                                                            {comment.commentedBy.firstname + " " + comment.commentedBy.lastname}
+                                                        </Typography>
+                                                        {` — ${comment.comment}…`}
+                                                    </React.Fragment>
+                                                }
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                    </List>
                 </CardContent>
             </Collapse>
-        </Paper>
+            <CardContent sx={{ py: '3px' }}>
+                <Typography fontSize={12} fontWeight={400} color="#637381" fontFamily='Public Sans' >
+                    3 hrs ago
+                </Typography>
+            </CardContent>
+            <Divider />
+            <Stack flexDirection={'row'} alignItems='center' sx={{ width: 400, height: 40 }}>
+                {/* <AccountCircle sx={{ color: 'action.active', mr: 1 }} /> */}
+                <IconButton aria-label="emoji" sx={{ marginLeft: '5px' }}>
+                    <SentimentSatisfiedAltIcon />
+                </IconButton>
+                <TextField
+                    id="standard-multiline-flexible"
+                    // label="add comment"
+                    placeholder='Add your comment...'
+                    multiline
+                    maxRows={4}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    variant="standard"
+                    sx={{ width: '100%' }}
+                    InputProps={{ disableUnderline: true, style: { fontSize: 14, fontFamily: 'Public Sans', fontWeight: 400, marginTop: 4 } }}
+                />
+                <Button sx={{ textTransform: 'none' }}>
+                    <Typography component={'div'} fontSize={15} fontWeight={600} color='#1890FF' >
+                        Post
+                    </Typography>
+                </Button>
+            </Stack>
+            <PostModal open={open} handleClose={handleClose} image={image} _id={_id} {...props} />
+
+        </Paper >
     );
 }

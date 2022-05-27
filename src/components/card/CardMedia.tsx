@@ -108,14 +108,15 @@ const Media = (props: any) => {
                                         image={`http://localhost:8080/${data.filename}`}
                                         alt="Paella dish"
                                         // onLoad={() => isLoaded()}
-                                        sx={{ objectFit: 'cover', maxHeight: '300px' }}
+                                        sx={{ objectFit: 'cover', maxHeight: '400px' }}
                                     // ref={ref}
                                     />
                                 ) : null}
                             </div>
                         ))}
                     </ AutoPlaySwipeableViews>
-                    <MobileStepper
+                    {/* <MobileStepper
+                        sx={{ paddingBottom: 0 }}
                         steps={maxSteps}
                         position="static"
                         activeStep={activeStep}
@@ -143,7 +144,7 @@ const Media = (props: any) => {
                                 Back
                             </Button>
                         }
-                    />
+                    /> */}
                 </> :
                 <CardMedia
                     component="img"
@@ -151,7 +152,7 @@ const Media = (props: any) => {
                     image={`http://localhost:8080/${image?.[0].filename}`}
                     alt="Paella dish"
                     // onLoad={() => isLoaded()}
-                    sx={{ objectFit: 'cover', maxHeight: '300px' }}
+                    sx={{ objectFit: 'cover', maxHeight: '400px' }}
                 />
             }
 

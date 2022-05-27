@@ -25,7 +25,7 @@ export default function Home() {
     getPosts();
   }, [dispatch])
   return (
-    <Container maxWidth="sm" sx={{ marginTop: 10 }}>
+    <Container maxWidth="sm" sx={{ marginTop: 8 }}>
       <Box sx={{ my: 0 }} display='flex' flexDirection={"column"} alignItems="center">
         {/* <Typography variant="h4" component="h1" gutterBottom>
           Home
