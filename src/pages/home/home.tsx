@@ -23,7 +23,7 @@ export default function Home() {
       dispatch(setPosts(response.results))
     }
     getPosts();
-  }, [dispatch])
+  }, [])
   return (
     <Container maxWidth="sm" sx={{ marginTop: 8 }}>
       <Box sx={{ my: 0 }} display='flex' flexDirection={"column"} alignItems="center">

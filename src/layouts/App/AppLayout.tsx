@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Router, Switch } from "react-router-dom";
+import { Route, Router, Switch } from "react-router-dom";
 import { routes } from "../../routes/routes.config";
 import history from "../../routes/history";
 import Routes from "../../routes/routes";
-import { Navbar } from "../../components/navbar";
+import Navbar from "../../components/navbar/Navbar";
 import { authenticationService } from "../../utils/auth.service";
 
-export default function AppLayout(props: any) {
+function AppLayout(props: any) {
   return (
     <>
-      <Navbar
-        onLogout={() => {
-          authenticationService.localLogout();
-        }}
-      />
+      <Navbar />
       <Router history={history}>
         <Switch>
           {routes.map((item) => {
@@ -32,3 +28,5 @@ export default function AppLayout(props: any) {
     </>
   );
 }
+
+export default AppLayout;

@@ -21,7 +21,7 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 
 const Media = (props: any) => {
-    const { image, postId, activeStep, maxSteps, play, handleNext, handleBack, handleStepChange } = props
+    const { image, postId, activeStep, height, maxSteps, play, handleNext, handleBack, handleStepChange } = props
     const theme = useTheme();
 
     // const ref = useRef<any>();
@@ -105,6 +105,7 @@ const Media = (props: any) => {
                                     <CardMedia
                                         component="img"
                                         width='100%'
+                                        height={height}
                                         image={`http://localhost:8080/${data.filename}`}
                                         alt="Paella dish"
                                         // onLoad={() => isLoaded()}

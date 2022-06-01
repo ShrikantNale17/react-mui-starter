@@ -17,7 +17,7 @@ export const Protected = () => {
         )
     } else {
         return (
-            <Redirect to={location.pathname} />
+            <Redirect to={'/home'} />
         )
     }
 }

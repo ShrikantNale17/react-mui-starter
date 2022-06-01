@@ -8,7 +8,8 @@ import AppLayout from "../../layouts/App/AppLayout";
 import PageNotFound from "../../pages/auth/page-not-found/page-not-found";
 import "./AppNavigator.scss";
 import { authenticationService } from "../../utils/auth.service";
-import { Navbar } from "../navbar";
+import Navbar from "../navbar/Navbar";
+import Saved from "../../pages/saved-posts/Saved";
 
 export type AppNavigatorProps = any;
 
@@ -37,14 +38,14 @@ export const AppNavigator = (props: AppNavigatorProps) => {
 						} else {
 							console.log("Auth routes")
 							return (
-								<Route
+								<Routes
 									exact
 									path={item.path}
 									key={index}
 									component={item.component}
 								>
 									<AuthLayout key={index} />
-								</Route>
+								</Routes>
 							);
 						}
 					} else {
@@ -59,24 +60,9 @@ export const AppNavigator = (props: AppNavigatorProps) => {
 								<AppLayout key={index} />
 							</Routes>
 						);
-
-						// <>
-						// 	<Navbar
-						// 		onLogout={() => {
-						// 			authenticationService.localLogout();
-						// 		}}
-						// 	/>
-
-						// 	<Routes
-						// 		exact
-						// 		component={item.component}
-						// 		key={item.path}
-						// 		path={item.path}
-						// 	/>
-
-						// </>)
 					}
 				})}
+				{/* <Route path={'/savedPosts'} component={Saved} /> */}
 				<Route component={PageNotFound} />
 			</Switch>
 		</Router >

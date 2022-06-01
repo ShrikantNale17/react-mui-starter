@@ -57,15 +57,13 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
         }),
     }));
 
-export default function Post(props: any) {
+function Post(props: any) {
 
     const dispatch = useDispatch();
     var currentUser: any = localStorage.getItem("currentUser")
     currentUser = JSON.parse(currentUser);
 
     const { _id, caption, comments, image, likes, createdBy, createdAt } = props;
-
-    console.log(comments);
 
     const [loading, setLoading] = React.useState(true)
     const [expanded, setExpanded] = React.useState(false);
@@ -134,7 +132,7 @@ export default function Post(props: any) {
                             setPlay(isVisible)
                         }}
                     >
-                        <Media image={image} postId={_id} play={play} />
+                        <Media height={'350px'} image={image} postId={_id} play={play} />
                     </VisibilitySensor>
                 :
                 <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
@@ -253,7 +251,7 @@ export default function Post(props: any) {
                     // label="add comment"
                     placeholder='Add your comment...'
                     multiline
-                    maxRows={4}
+                    maxRows={1}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     variant="standard"
@@ -261,13 +259,15 @@ export default function Post(props: any) {
                     InputProps={{ disableUnderline: true, style: { fontSize: 14, fontFamily: 'Public Sans', fontWeight: 400, marginTop: 4 } }}
                 />
                 <Button sx={{ textTransform: 'none' }}>
-                    <Typography component={'div'} fontSize={15} fontWeight={600} color='#1890FF' >
+                    <Typography component={'div'} fontSize={15} fontWeight={600} fontFamily='Public Sans' color='#1890FF' >
                         Post
                     </Typography>
                 </Button>
             </Stack>
-            <PostModal open={open} handleClose={handleClose} image={image} _id={_id} {...props} />
+            <PostModal open={open} handleClose={handleClose} handleLike={handleLike} {...props} />
 
         </Paper >
     );
 }
+
+export default React.memo(Post);

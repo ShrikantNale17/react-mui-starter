@@ -5,6 +5,7 @@ export default function PageNotFound() {
   /*
    * Render
    */
+  console.log('Page not found')
   return (
     <h1>Page not found</h1>
   );

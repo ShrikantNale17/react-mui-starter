@@ -117,6 +117,7 @@ function logout() {
   return get(`/api/auth/logout`)
     .then((response) => {
       // remove user from local storage to log user out
+      console.log("logout res ....")
       localStorage.removeItem("currentUser");
 
       Cookie.remove("_token", { path: "/" });
@@ -124,11 +125,12 @@ function logout() {
       currentUserSubject.next({});
 
       history.push(paths.login);
-      // window.location.reload()
+      window.location.reload()
       return response;
     })
     .catch((error) => {
-      // remove user from local storage to log user out
+      // remove user from local storage to log user 
+      console.log("logout err......")
       localStorage.removeItem("currentUser");
 
       Cookie.remove("_token", { path: "/" });
@@ -136,6 +138,7 @@ function logout() {
       currentUserSubject.next({});
 
       history.push(paths.login);
+      window.location.reload()
     });
 }
 
@@ -152,7 +155,7 @@ function localLogout() {
   currentUserSubject.next({});
 
   history.push(paths.login);
-  // window.location.reload();
+  window.location.reload();
 }
 
 /*
@@ -236,6 +239,6 @@ function handleLogin(response: any) {
 
   if (response.user && !response.user._pre) {
     history.push(paths.home);
-    // window.location.reload();
+    window.location.reload();
   }
 }
