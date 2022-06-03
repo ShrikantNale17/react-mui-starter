@@ -32,13 +32,15 @@ import VisibilitySensor from 'react-visibility-sensor';
 import { useDispatch } from 'react-redux'
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
-import Content from './CardContent';
+import PostCaption from './PostCaption';
 import Actions from './PostCardActions';
 import Media from './CardMedia';
-import CardCarousel from './Carousel';
-import { likePost } from './card-slice/CardSlice';
+import { commentOnPost, likePost } from './card-slice/CardSlice';
 import PostModal from '../modal/PostModal'
 import PostCardHeader from './PostCardHeader';
+import PostCardActions from './PostCardActions';
+import CommentField from './CommentField';
+import { baseURL } from '../../utils/constants/urls';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -68,7 +70,6 @@ function Post(props: any) {
     const [loading, setLoading] = React.useState(true)
     const [expanded, setExpanded] = React.useState(false);
     const [play, setPlay] = React.useState(false);
-    const [comment, setComment] = React.useState('')
     const [open, setOpen] = React.useState(false);
 
     const handleOpen = () => {
@@ -79,10 +80,6 @@ function Post(props: any) {
         setOpen(false);
         setPlay(true)
     }
-
-    const handleExpandClick = React.useCallback(() => {
-        setExpanded(!expanded);
-    }, [expanded]);
 
     const isLoaded = async () => {
         setLoading(false)
@@ -109,6 +106,19 @@ function Post(props: any) {
         dispatch(likePost({ ...props, likes: temp_likes }));
     }
 
+    const handleComment = (comment: String) => {
+        const commentObj = {
+            comment: { comment },
+            commentedBy: {
+                ...currentUser
+            },
+            replies: []
+        }
+        const temp_comments = [...comments, commentObj];
+        console.log(temp_comments);
+        dispatch(commentOnPost({ ...props, comments: temp_comments }));
+    }
+
     return (
         <Paper elevation={2} sx={{ width: 400, my: 2, fontFamily: 'Public Sans' }} >
 
@@ -121,7 +131,7 @@ function Post(props: any) {
                         <CardMedia
                             component="img"
                             width='100%'
-                            image={`http://localhost:8080/${image[0].filename}`}
+                            image={`${baseURL}/${image[0].filename}`}
                             alt="Paella dish"
                             onLoad={() => isLoaded()}
                             sx={{ objectFit: 'cover', maxHeight: '400px', display: 'none' }}
@@ -137,24 +147,9 @@ function Post(props: any) {
                 :
                 <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
             }
-            {/* <CardCarousel image={image} /> */}
 
-            {/* <Actions setLoading={setLoading} likes={m_likes} comments={m_comments} expanded={expanded} handleExpandClick={handleExpandClick} /> */}
-            <CardActions disableSpacing sx={{ py: 0, height: 40 }}>
-                <IconButton aria-label="add to favorites" onClick={handleLike}>
-                    {
-                        likes?.includes(currentUser._id) ?
-                            <FavoriteIcon sx={{ color: '#ff0000', height: 30 }} /> :
-                            <FavoriteBorderIcon />
-                    }
-                </IconButton>
-                <IconButton aria-label="comments" onClick={handleOpen}>
-                    <ChatBubbleOutlineOutlinedIcon />
-                </IconButton>
-                <IconButton aria-label="save post" sx={{ marginLeft: 'auto' }}>
-                    <BookmarkBorderRoundedIcon />
-                </IconButton>
-            </CardActions>
+            <PostCardActions handleLike={handleLike} handleOpen={handleOpen} {...props} />
+
             {likes?.length > 0 &&
                 <CardContent sx={{ py: '2px' }}>
                     <Typography variant="body2" color="#000000" fontSize={14} fontWeight={400} fontFamily='Public Sans' >
@@ -163,25 +158,7 @@ function Post(props: any) {
                 </CardContent>
             }
 
-            {/* <Content caption={m_caption} /> */}
-            <CardContent sx={{ py: '0px' }}>
-                {
-                    caption ?
-                        <Stack flexDirection={'row'} alignItems='center' gap={1}>
-                            <Typography variant="subtitle2" color="#212B36" fontSize={14} fontWeight={600} fontFamily='Public Sans' >
-                                {createdBy.firstname + ' ' + createdBy.lastname}
-                            </Typography>
-                            <Typography variant="body2" color="#000000" fontSize={14} fontWeight={400} fontFamily='Public Sans' >
-                                {caption}
-                            </Typography>
-                        </Stack> :
-                        <Skeleton
-                            animation="wave"
-                            height={20}
-                            width="100%"
-                        />
-                }
-            </CardContent>
+            <PostCaption {...props} />
             {
                 comments?.length > 0 &&
                 <CardContent sx={{ py: '0px' }}>
@@ -193,7 +170,7 @@ function Post(props: any) {
                 </CardContent>
             }
 
-            <Collapse in={expanded} timeout="auto" unmountOnExit sx={{ pb: 0 }}>
+            {/* <Collapse in={expanded} timeout="auto" unmountOnExit sx={{ pb: 0 }}>
                 <CardContent sx={{ py: '0px' }}>
                     <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                         {
@@ -234,15 +211,18 @@ function Post(props: any) {
                         }
                     </List>
                 </CardContent>
-            </Collapse>
+            </Collapse> */}
+
             <CardContent sx={{ py: '3px' }}>
                 <Typography fontSize={12} fontWeight={400} color="#637381" fontFamily='Public Sans' >
                     3 hrs ago
                 </Typography>
             </CardContent>
+
             <Divider />
-            <Stack flexDirection={'row'} alignItems='center' sx={{ width: 400, height: 40 }}>
-                {/* <AccountCircle sx={{ color: 'action.active', mr: 1 }} /> */}
+
+            {/* <Stack flexDirection={'row'} alignItems='center' sx={{ width: 400, height: 40 }}>
+                {/* <AccountCircle sx={{ color: 'action.active', mr: 1 }} /> 
                 <IconButton aria-label="emoji" sx={{ marginLeft: '5px' }}>
                     <SentimentSatisfiedAltIcon />
                 </IconButton>
@@ -263,7 +243,9 @@ function Post(props: any) {
                         Post
                     </Typography>
                 </Button>
-            </Stack>
+            </Stack> */}
+            <CommentField handleComment={handleComment} />
+
             <PostModal open={open} handleClose={handleClose} handleLike={handleLike} {...props} />
 
         </Paper >

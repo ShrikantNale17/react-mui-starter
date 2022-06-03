@@ -14,8 +14,8 @@ import { useInViewport } from 'react-in-viewport';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import ArrowBackIosRoundedIcon from '@mui/icons-material/ArrowBackIosRounded';
 
-import { useIntersection } from './useIntersection';
 import HOC from './HOC';
+import { baseURL } from '../../utils/constants/urls';
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
@@ -106,10 +106,10 @@ const Media = (props: any) => {
                                         component="img"
                                         width='100%'
                                         height={height}
-                                        image={`http://localhost:8080/${data.filename}`}
+                                        image={`${baseURL}/${data.filename}`}
                                         alt="Paella dish"
                                         // onLoad={() => isLoaded()}
-                                        sx={{ objectFit: 'cover', maxHeight: '400px' }}
+                                        sx={{ objectFit: 'cover', maxHeight: '450px' }}
                                     // ref={ref}
                                     />
                                 ) : null}

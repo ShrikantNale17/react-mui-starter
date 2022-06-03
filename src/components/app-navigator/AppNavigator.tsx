@@ -38,27 +38,27 @@ export const AppNavigator = (props: AppNavigatorProps) => {
 						} else {
 							console.log("Auth routes")
 							return (
-								<Routes
+								<Route
 									exact
 									path={item.path}
 									key={index}
 									component={item.component}
 								>
 									<AuthLayout key={index} />
-								</Routes>
+								</Route>
 							);
 						}
 					} else {
 						console.log("AppNavigator else")
 						return (
-							<Routes
-								exact
-								path={item.path}
-								key={index}
-								component={item.component}
-							>
-								<AppLayout key={index} />
-							</Routes>
+							// <Route
+							// 	exact
+							// 	path={item.path}
+							// 	key={index}
+							// 	component={item.component}
+							// >
+							<AppLayout key={index} />
+							// </Route>
 						);
 					}
 				})}

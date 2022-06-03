@@ -2,15 +2,16 @@ import { Avatar, IconButton, Skeleton, Stack, Typography } from '@mui/material'
 import React from 'react'
 import { red } from '@mui/material/colors';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { baseURL } from '../../utils/constants/urls';
 
-const PostComment = (props: any) => {
+const PostCardComment = (props: any) => {
     const { commentedBy, comment } = props;
     return (
         <Stack flexDirection={'row'} justifyContent='space-between' alignItems={'center'}>
-            <Stack flexDirection={'row'} gap={'16px'} alignItems={'center'}>
+            <Stack flexDirection={'row'} gap={'16px'} alignItems={'flex-start'}>
                 {
                     commentedBy ?
-                        <Avatar sx={{ bgcolor: red[500], height: 35, width: 35 }} aria-label="profile_pic" src={`http://localhost:8080/${commentedBy.image}`}>
+                        <Avatar sx={{ bgcolor: red[500], height: 35, width: 35 }} aria-label="profile_pic" src={`${baseURL}/${commentedBy.image}`}>
                             {commentedBy.firstname.charAt(0) + commentedBy.lastname.charAt(0)}
                         </Avatar> :
                         <Skeleton animation="wave" variant="circular" width={40} height={40} />
@@ -29,7 +30,7 @@ const PostComment = (props: any) => {
                         }
                         {comment ?
                             <Typography fontSize={14} fontWeight={400} fontFamily='Public Sans' color='#919EAB'>
-                                {comment.comment}
+                                {comment}
                             </Typography> :
                             <Skeleton
                                 animation="wave"
@@ -49,10 +50,10 @@ const PostComment = (props: any) => {
                 </Stack>
             </Stack>
             <IconButton aria-label="like comment">
-                <FavoriteBorderIcon sx={{ height: '20px' }} />
+                <FavoriteBorderIcon sx={{ height: '17px' }} />
             </IconButton>
         </Stack>
     )
 }
 
-export default PostComment
+export default PostCardComment

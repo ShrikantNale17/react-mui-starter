@@ -3,6 +3,7 @@ import { Avatar, CardHeader } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton';
 import { red } from '@mui/material/colors';
+import { baseURL } from '../../utils/constants/urls';
 
 
 const PostCardHeader = (props: any) => {
@@ -14,7 +15,7 @@ const PostCardHeader = (props: any) => {
             sx={{ height: 20 }}
             avatar={
                 createdBy ?
-                    <Avatar sx={{ bgcolor: red[500], height: 35, width: 35 }} aria-label="profile_pic" src={`http://localhost:8080/${createdBy.image}`}>
+                    <Avatar sx={{ bgcolor: red[500], height: 35, width: 35 }} aria-label="profile_pic" src={`${baseURL}/${createdBy.image}`}>
                         {createdBy.firstname.charAt(0) + createdBy.lastname.charAt(0)}
                     </Avatar> :
                     <Skeleton animation="wave" variant="circular" width={40} height={40} />

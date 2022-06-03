@@ -15,7 +15,7 @@ function AppLayout(props: any) {
           {routes.map((item) => {
             console.log("Navbar")
             return (
-              <Routes
+              <Route
                 exact
                 component={item.component}
                 key={item.path}

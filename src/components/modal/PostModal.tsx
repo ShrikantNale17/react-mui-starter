@@ -15,15 +15,16 @@ import { red } from '@mui/material/colors';
 
 import PostCardHeader from '../card/PostCardHeader';
 import { authenticationService } from '../../utils/auth.service';
-import PostComment from '../card/PostComment';
+import PostCardComment from '../card/PostCardComment';
+import CommentField from '../card/CommentField';
 
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 700,
-    height: 400,
+    width: 800,
+    height: 450,
     bgcolor: 'background.paper',
     // border: '2px solid #000',
     boxShadow: 24,
@@ -34,7 +35,7 @@ export default function BasicModal(props: any) {
 
     const { open, handleClose, handleLike, likes, image, _id, play, comments, createdBy } = props;
     const currentUser: any = authenticationService.currentUserValue;
-    const [comment, setComment] = React.useState('')
+    // const [comment, setComment] = React.useState('')
 
     return (
         <Modal
@@ -44,63 +45,43 @@ export default function BasicModal(props: any) {
             aria-describedby="modal-modal-description"
         >
             <Box sx={style} display={'flex'} justifyContent='center'>
-                <Box maxWidth={400}>
-                    <CardMedia height={400} image={image} postId={_id} play={play} />
+
+                <Box maxWidth={450}>
+                    <CardMedia height={450} image={image} postId={_id} play={play} />
                 </Box>
-                <Stack width={300} alignItems='flex-start'>
+
+                <Stack width={350} alignItems='flex-start' sx={{ ml: 'auto' }}>
+
                     <Stack alignItems={'flex-start'}>
+
                         <Stack width={'100%'} flexDirection={'row'} alignItems='center' justifyContent={'space-between'}>
                             <PostCardHeader _id={_id} createdBy={createdBy} />
                             <Typography mr={1} fontSize={12} fontWeight={400} color='#637381' fontFamily='Public Sans'>
                                 3 hrs
                             </Typography>
                         </Stack>
+
                         <Stack padding={'2px 16px 5px 66px'}>
                             <Typography variant='body2' fontSize={14} fontWeight={400} fontFamily='Public Sans'>
                                 The place of colorful lights with lots of darkness...
                             </Typography>
                         </Stack>
+
                     </Stack>
-                    <Divider sx={{ width: 300 }} />
-                    <Stack width={300} flexDirection={'row'} overflow={'auto'}>
-                        <Stack width={300} padding={'8px 16px'} gap={1}>
+
+                    <Divider sx={{ width: '100%' }} />
+
+                    <Stack width={'100%'} flexDirection={'row'} overflow={'auto'}>
+
+                        <Stack width={'100%'} padding={'8px 16px'} gap={2}>
                             {
-                                comments?.map((cmnt: any) => <PostComment key={cmnt._id} {...cmnt} />)
+                                comments?.map((cmnt: any) => <PostCardComment key={cmnt._id} {...cmnt} />)
                             }
-                            {/* <Stack flexDirection={'row'} justifyContent='space-between' alignItems={'center'}>
-                                <Stack flexDirection={'row'} gap={'16px'} alignItems={'center'}>
-                                    {
-                                        <Avatar sx={{ bgcolor: red[500], height: 35, width: 35 }} aria-label="profile_pic">
-                                            {'S' + 'N'}
-                                        </Avatar>
-                                    }
-                                    <Stack alignItems={'flex-start'} gap={'4px'}>
-                                        <Stack flexDirection={'row'} gap={'12px'}>
-                                            <Typography fontSize={14} fontWeight={600} fontFamily='Public Sans'>
-                                                {'Shrikant'}
-                                            </Typography>
-                                            <Typography fontSize={14} fontWeight={400} fontFamily='Public Sans' color='#919EAB'>
-                                                {'Nice Pic'}
-                                            </Typography>
-                                        </Stack>
-                                        <Stack flexDirection={'row'} alignItems='flex-start' gap={'16px'}>
-                                            <Typography fontSize={12} fontWeight={400} fontFamily='Public Sans' color='#919EAB'>
-                                                {`1 min`}
-                                            </Typography>
-                                            <Typography fontSize={12} fontWeight={700} fontFamily='Public Sans' color='#919EAB'>
-                                                {`Reply`}
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                </Stack>
-                                <IconButton aria-label="like comment">
-                                    <FavoriteBorderIcon sx={{ height: '20px' }} />
-                                </IconButton>
-                            </Stack>
-                             */}
                         </Stack>
+
                     </Stack>
-                    <Stack sx={{ width: 300, marginTop: 'auto' }} >
+
+                    <Stack sx={{ width: '100%', marginTop: 'auto' }} >
                         {/* <AccountCircle sx={{ color: 'action.active', mr: 1 }} /> */}
                         <Divider />
                         <CardActions disableSpacing sx={{ py: 0, height: 30 }}>
@@ -127,8 +108,10 @@ export default function BasicModal(props: any) {
                                 3 hrs ago
                             </Typography>
                         </CardContent>
+
                         <Divider />
-                        <Stack flexDirection={'row'} alignItems='center'>
+
+                        {/* <Stack flexDirection={'row'} alignItems='center'>
                             <IconButton aria-label="emoji" sx={{ marginLeft: '5px' }}>
                                 <SentimentSatisfiedAltIcon />
                             </IconButton>
@@ -145,13 +128,18 @@ export default function BasicModal(props: any) {
                                 InputProps={{ disableUnderline: true, style: { fontSize: 14, fontFamily: 'Public Sans', fontWeight: 400, marginTop: 4 } }}
                             />
                             <Button sx={{ textTransform: 'none' }}>
-                                <Typography component={'div'} fontSize={15} fontWeight={700} fontFamily='Public Sans' color='#1890FF' >
+                                <Typography component={'div'} fontSize={15} fontWeight={600} fontFamily='Public Sans' color='#1890FF' >
                                     Post
                                 </Typography>
                             </Button>
-                        </Stack>
+
+                        </Stack> */}
+                        <CommentField />
+
                     </Stack>
+
                 </Stack>
+
             </Box>
         </Modal>
     );

@@ -8,20 +8,16 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import { useDispatch } from 'react-redux';
 
 import { likePost } from './card-slice/CardSlice';
+import { authenticationService } from '../../utils/auth.service';
 
 
 const Actions = (props: any) => {
 
     const dispatch = useDispatch();
+    const currentUser = authenticationService.currentUserValue;
 
     console.log("Actions..................")
-    const { likes, comments, expanded, handleExpandClick, setLoading, handleOpen, currentUser } = props;
-
-    const handleLike = async () => {
-        const temp_likes = likes.includes(currentUser._id) ? likes.filter((uid: any) => uid !== currentUser._id) : [...likes, currentUser._id];
-        console.log({ ...props, likes: temp_likes })
-        dispatch(likePost({ ...props, likes: temp_likes }));
-    }
+    const { likes, comments, handleOpen, handleLike } = props;
 
     return (
         <CardActions disableSpacing sx={{ py: 0, height: 40 }}>

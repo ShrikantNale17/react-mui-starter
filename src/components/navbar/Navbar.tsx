@@ -27,6 +27,7 @@ import { authenticationService } from "../../utils/auth.service";
 import Logo from '../../stories/assets/logo.svg'
 import { Redirect } from "react-router-dom";
 import history from "../../routes/history";
+import { baseURL } from "../../utils/constants/urls";
 
 const Navbar = () => {
 
@@ -113,7 +114,7 @@ const Navbar = () => {
 					</IconButton>
 					<Button sx={{ textTransform: 'none' }} onClick={handleClick}>
 						<IconButton sx={{ ml: 2, p: 0 }} aria-controls={open ? 'account-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined}>
-							<Avatar sx={{ width: 25, height: 25 }} aria-label="profile_pic" src={`http://localhost:8080/${currentUser.image}`}>
+							<Avatar sx={{ width: 25, height: 25 }} aria-label="profile_pic" src={`${baseURL}/${currentUser.image}`}>
 								{currentUser.firstname.charAt(0) + currentUser.lastname.charAt(0)}
 							</Avatar>
 						</IconButton>
