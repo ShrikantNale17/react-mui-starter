@@ -1,10 +1,11 @@
 import { BehaviorSubject } from "rxjs";
-import { get, post, put } from "./http/httpMethods";
+import { get, patch, post, put } from "./http/httpMethods";
 import Cookie from "js-cookie";
+import Cookies from "js-cookie";
 import history from "../routes/history";
 import { paths } from "../routes/routes.config";
-import { showErrorToast } from "./toastUtil";
-// import { defaultUsers } from "../@types/user";
+import { showErrorToast, showSuccessToast } from "./toastUtil";
+import { defaultUsers } from "../@types/user";
 
 let currentUserFromStorage: any;
 
@@ -29,7 +30,7 @@ const currentOrganizationSubject = new BehaviorSubject(
   (currentUserFromStorage &&
     currentUserFromStorage._org &&
     currentUserFromStorage._org[0]) ||
-  undefined
+    undefined
 );
 
 /*
@@ -44,15 +45,25 @@ export const authenticationService = {
   requestPasswordReset,
   setPassword,
   isUserAndTokenAvailable,
+  replyToComment,
+  likeToComment,
   verifyOTP,
+  AddPost,
   handleLogin,
   localLogout,
   resendOTP,
   unsubscribeAll,
+  forgotPassword,
+  sendVerification,
+  likeToReply,
+  addComment,
+  getPosts,
+  like,
   currentUser: currentUserSubject.asObservable(),
   get currentUserValue() {
     return currentUserSubject.value;
   },
+
   currentOrganization: currentOrganizationSubject.asObservable(),
   get currentOrganizationValue() {
     return currentOrganizationSubject.value;
@@ -63,41 +74,50 @@ export const authenticationService = {
  * Verify OTP method
  */
 function verifyCredentials(payload: any) {
-  return post(`/auth/login`, payload)
-    .then(response => {
-      console.log(response)
-      new Promise((resolve, reject) => {
-        handleLogin(response);
-        resolve(true);
-      });
-    })
-    .catch(error => {
-      return error
-    })
+ 
+
+
   // return new Promise((resolve, reject) => {
-  //   handleLogin({ token: "AABBCC", user: payload });
+  //   handleLogin({ token: "AABBCC", user: defaultUsers[0] });
   //   resolve(true);
   // });
-  // return post('/api/auth/login', payload)
-  //     .then((response: any) => {
-  //       //   handleLogin(response)
-  //         handleLogin({ token: "AABBCC", user: defaultUsers[0] });
-  //         return response
-  //     })
-  //     .catch((error: any) => {
-  //       //   showErrorToast(
-  //       //       error.message || 'Error occurred while validating credentials!'
-  //       //   )
-  //         handleLogin({ token: "AABBCC", user: defaultUsers[0] });
-  //         return error
-  //     })
+
+  return post("http://192.168.0.170:8080/auth/login", payload)
+    .then((response: any) => {
+      //   handleLogin(response)
+      console.log(response.token)
+      showSuccessToast(" 'You are successfully logged in'");
+      handleLogin({ token: response.token, user: response.user });
+      
+      return response;
+    })
+    .catch((error: any) => {
+      showErrorToast(
+        error.message || "Error occurred while validating credentials!"
+      );
+      // handleLogin({ token: "AABBCC", user: defaultUsers[0] });
+      return error;
+    });
 }
 
+
+//* Sent mail when forgot password
+function forgotPassword(payload: any) {
+    
+  return post(
+    "http://192.168.0.170:8080/auth/forgot-password",
+    payload
+  );
+}
+  
 /*
  * Verify OTP method
  */
 function requestPasswordReset(payload: any) {
-  return post("/api/user/password/reset", payload).then((response: any) => {
+  console.log(payload.obj)
+  return post(
+    `http://192.168.0.170:8080/auth/reset-password?token=${payload.token}`,payload.obj
+  ).then((response: any) => {
     return response;
   });
 }
@@ -116,29 +136,27 @@ function unsubscribeAll() {
 function logout() {
   return get(`/api/auth/logout`)
     .then((response) => {
-      // remove user from local storage to log user out
-      console.log("logout res ....")
+      // remove user from local storage to log user out 
+
       localStorage.removeItem("currentUser");
 
       Cookie.remove("_token", { path: "/" });
 
       currentUserSubject.next({});
 
-      history.push(paths.login);
-      window.location.reload()
+      history.push("/auth/login");
+      // window.location.reload()
       return response;
     })
     .catch((error) => {
-      // remove user from local storage to log user 
-      console.log("logout err......")
+      // remove user from local storage to log user out
       localStorage.removeItem("currentUser");
 
       Cookie.remove("_token", { path: "/" });
 
       currentUserSubject.next({});
 
-      history.push(paths.login);
-      window.location.reload()
+      history.push("/auth/login");
     });
 }
 
@@ -147,14 +165,13 @@ function logout() {
  */
 function localLogout() {
   // remove user from local storage to log user out
-  console.log("logout..................")
   localStorage.removeItem("currentUser");
 
   Cookie.remove("_token", { path: "/" });
 
   currentUserSubject.next({});
 
-  history.push(paths.login);
+  history.push("/auth/login");
   window.location.reload();
 }
 
@@ -168,19 +185,25 @@ function authToken() {
 /*
  * Register user method
  */
+// function register(payload: any) {
+//   return post("/api/user/sign-up", payload).then((response: any) => {
+//     // handleLogin(response)
+//     return response;
+//   });
+// }
+
 function register(payload: any) {
-  return post("/api/user/sign-up", payload).then((response: any) => {
-    // handleLogin(response)
-    return response;
-  });
+  return post("http://192.168.0.170:8080/auth/register", payload)
+   
 }
+
 
 /*
  * Set new password
  */
 function setPassword(payload: any, token: string) {
   return put("/api/user/password", payload, {
-    headers: { Authorization: `${token}` },
+    headers: { Authorization: `${token}`},
   }).then((response: any) => {
     return response;
   });
@@ -217,9 +240,11 @@ function isUserAndTokenAvailable() {
  */
 function loadCurrentUser() {
   get(`/api/auth/self`).then((response: any) => {
+
     localStorage.setItem("currentUser", JSON.stringify(response));
     currentUserSubject.next(response);
     currentOrganizationSubject.next(response._org[0]);
+
   });
 }
 
@@ -228,7 +253,6 @@ function loadCurrentUser() {
  */
 function handleLogin(response: any) {
   // store user details and jwt token in local storage to keep user logged in between page refreshes
-  console.log(response)
   Cookie.set("_token", response.token, { path: "/" });
 
   localStorage.setItem("currentUser", JSON.stringify(response.user));
@@ -241,4 +265,82 @@ function handleLogin(response: any) {
     history.push(paths.home);
     window.location.reload();
   }
+}
+
+
+//* send verification mail
+
+function sendVerification(payload: any) {
+  console.log(payload)
+  return post("http://192.168.0.170:8080/auth/send-verification-email",{}, {
+    headers: {
+      Authorization: "Bearer " + payload,
+    },
+  });
+}
+
+//* Add post 
+
+function AddPost(payload: any) {
+  
+
+  return post(
+    "http://localhost:8080/posts",
+    {},
+    {
+      headers: {
+        Authorization: Cookies.get("_token"),
+      },
+    }
+  );
+}
+
+//get post in home
+
+function getPosts() {
+  return get(
+    `http://192.168.0.170:8080/posts?page=1&limit=2`, {
+
+    headers: { Authorization: "Bearer " +Cookies.get("_token") },
+  });
+}
+
+// like the post
+
+function like(id:any) {
+  return patch(`http://192.168.0.170:8080/posts/like/${id}`, {
+    headers: { Authorization: "Bearer " + Cookies.get("_token") },
+  });
+}
+
+//comment on the post 
+function addComment(id: any, comment: any) {
+  
+
+  return patch(`http://192.168.0.170:8080/posts/${id}/comment`, comment, {
+    headers: { Authorization: "Bearer " + Cookies.get("_token") },
+  });
+
+}
+
+//reply on comment
+function replyToComment(id: any ,reply:any) {
+  return patch(`http://192.168.0.170:8080/posts/comments/${id}/reply`, {reply:reply}, {
+    headers: {Authorization : "Bearer " + Cookies.get("_token")}
+  })
+
+}
+//like to comment
+function likeToComment(id: any ,reply:any) {
+  return patch(`http://192.168.0.170:8080/posts/comments/${id}/like`, {
+    headers: {Authorization : "Bearer " + Cookies.get("_token")}
+  })
+
+}
+
+//like to reply
+function likeToReply(id: any, reply: any) {
+  return patch(`http://192.168.0.170:8080/posts/comments/replies/${id}/like`, {
+    headers: { Authorization: "Bearer " + Cookies.get("_token") },
+  });
 }

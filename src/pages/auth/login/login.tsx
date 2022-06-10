@@ -73,7 +73,7 @@ export default function Login() {
 							margin="normal"
 							required
 							fullWidth
-							defaultValue="nilesh@angularminds.in"
+							defaultValue="shrikantnale17@gmail.com"
 							id="email"
 							label="Email Address"
 							// name="email"
@@ -87,7 +87,7 @@ export default function Login() {
 							fullWidth
 							// name="password"
 							label="Password"
-							defaultValue="Nilesh@123"
+							defaultValue="Shrikant@123"
 							type="password"
 							id="password"
 							autoComplete="current-password"

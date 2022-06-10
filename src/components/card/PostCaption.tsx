@@ -3,7 +3,7 @@ import { CardContent, Skeleton, Stack, Typography } from '@mui/material';
 
 const PostCaption = (props: any) => {
     const { caption, createdBy } = props
-    console.log("content...............")
+    // console.log("content...............")
     return (
         <CardContent sx={{ py: '0px' }}>
             {

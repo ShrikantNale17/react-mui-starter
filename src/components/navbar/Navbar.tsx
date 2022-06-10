@@ -24,24 +24,29 @@ import Backdrop from '@mui/material/Backdrop';
 
 import "./Navbar.scss";
 import { authenticationService } from "../../utils/auth.service";
-import Logo from '../../stories/assets/logo.svg'
+import Logo from '../../stories/assets/Logo.svg'
 import { Redirect } from "react-router-dom";
 import history from "../../routes/history";
 import { baseURL } from "../../utils/constants/urls";
+import ProfileUpdateModal from "../modal/ProfileUpdateModal";
 
-const Navbar = () => {
+export type NavbarProps = {
+	/**
+	 * To be triggered on logout click
+	 */
+	onLogout?: any;
+	userInfo: any;
+};
 
-	const onLogout = () => {
-		authenticationService.localLogout();
-	}
+export const Navbar = React.memo((props: any) => {
+
+	const { page, handlePage } = props;
 
 	console.log("Navbar 2")
 	const currentUser = authenticationService.currentUserValue;
 
-	const [page, setPage] = useState('home')
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-	const open = Boolean(anchorEl);
-	console.log(page)
+	const openMenu = Boolean(anchorEl);
 
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -50,31 +55,44 @@ const Navbar = () => {
 		setAnchorEl(null);
 	};
 
-	useEffect(() => {
-		handleRedirect();
-	}, [page])
-	// console.log(page)
-	const handlePage = async (value: any) => {
-		// console.log(value)
-		setPage(value);
-		// handleRedirect();
-		// history.push(`/${value}`)
-		// return <Redirect to={`/${value}`} />
+	const onLogout = () => {
+		authenticationService.localLogout();
 	}
 
-	const pageValue = useMemo(() => {
-		return page
-	}, [page])
 
-	const handleRedirect = useCallback(() => {
-		history.push(`/${pageValue}`);
+
+	const [open, setOpen] = React.useState(false);
+	const handleOpenModal = () => setOpen(true);
+	const handleCloseModal = () => setOpen(false);
+
+	/* useEffect(() => {
+		console.log("redirect call")
+		// handleRedirect();
+	}, []) */
+
+	/* const handlePage = async (value: any) => {
+		setPage(value);
+		console.log("page set")
+		history.push(`/${value}`)
+	} */
+
+	/* const pageValue = useMemo(() => {
+		return page
+	}, [page]) */
+
+	/* const handleRedirect = () => {
+		console.log("Redirect")
+		history.push(`/${page}`);
 		// return (<Redirect to={`/${pageValue}`} />)
-	}, [pageValue])
+	} */
+
+	// handleRedirect();
+
 	return (
 		<AppBar position="fixed" color="inherit" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
 			<Toolbar variant="dense" sx={{ width: '70%', minWidth: '450px', justifyContent: 'space-between', alignItems: 'center' }}>
 				<img src={Logo} alt="logo"></img>
-				<Typography
+				{/* <Typography
 					variant="h6"
 					color="inherit"
 					component="div"
@@ -84,7 +102,7 @@ const Navbar = () => {
 					fontWeight={600}
 				>
 					Life @ AM
-				</Typography>
+				</Typography> */}
 				<Stack
 					direction="row"
 					justifyContent="center"
@@ -113,9 +131,9 @@ const Navbar = () => {
 						}
 					</IconButton>
 					<Button sx={{ textTransform: 'none' }} onClick={handleClick}>
-						<IconButton sx={{ ml: 2, p: 0 }} aria-controls={open ? 'account-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined}>
-							<Avatar sx={{ width: 25, height: 25 }} aria-label="profile_pic" src={`${baseURL}/${currentUser.image}`}>
-								{currentUser.firstname.charAt(0) + currentUser.lastname.charAt(0)}
+						<IconButton sx={{ ml: 2, p: 0 }} aria-controls={openMenu ? 'account-menu' : undefined} aria-haspopup="true" aria-expanded={openMenu ? 'true' : undefined}>
+							<Avatar sx={{ width: 28, height: 28, fontSize: 17 }} aria-label="profile_pic" src={`${baseURL}/${currentUser?.image}`}>
+								{currentUser?.firstname.charAt(0) + currentUser?.lastname.charAt(0)}
 							</Avatar>
 						</IconButton>
 						<Typography variant="body2" component={'div'} color='text.primary' ml={1} >
@@ -133,15 +151,15 @@ const Navbar = () => {
 			</Toolbar>
 			<Backdrop
 				sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-				open={open}
-				onClick={handleClose}
+				open={openMenu}
+			// onClick={handleClose}
 			>
 				<Menu
 					anchorEl={anchorEl}
 					id="account-menu"
-					open={open}
+					open={openMenu}
 					onClose={handleClose}
-					onClick={handleClose}
+					// onClick={handleClose}
 					PaperProps={{
 						elevation: 0,
 						sx: {
@@ -178,7 +196,7 @@ const Navbar = () => {
 					<MenuItem>
 						<Avatar /> My account
 					</MenuItem> */}
-					<MenuItem>
+					<MenuItem onClick={handleOpenModal}>
 						<ListItemIcon>
 							<ManageAccountsOutlinedIcon fontSize="small" />
 						</ListItemIcon>
@@ -200,9 +218,10 @@ const Navbar = () => {
 						Logout
 					</MenuItem>
 				</Menu>
+				<ProfileUpdateModal open={open} handleCloseModal={handleCloseModal} />
 			</Backdrop>
 		</AppBar>
 	);
-};
+});
 
-export default React.memo(Navbar);
+// export default React.memo(Navbar);

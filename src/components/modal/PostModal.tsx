@@ -11,12 +11,15 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
 import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
 import { red } from '@mui/material/colors';
+import { useDispatch, useSelector } from 'react-redux';
 // import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 import PostCardHeader from '../card/PostCardHeader';
 import { authenticationService } from '../../utils/auth.service';
 import PostCardComment from '../card/PostCardComment';
 import CommentField from '../card/CommentField';
+import { patch } from '../../utils/http/httpMethods';
+import { likeComment, likePost, likeReply, replyToComment } from '../card/card-slice/CardSlice';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -33,9 +36,63 @@ const style = {
 
 export default function BasicModal(props: any) {
 
-    const { open, handleClose, handleLike, likes, image, _id, play, comments, createdBy } = props;
+    const dispatch = useDispatch();
+    const savedPosts = useSelector((state: any) => state.savedPosts.savedPosts);
+    // console.log(savedPosts);
+    const { open, handleClose, handleLike, handleComment, handleSavedPosts, caption, location, likes, image, _id, play, comments, createdBy } = props;
     const currentUser: any = authenticationService.currentUserValue;
     // const [comment, setComment] = React.useState('')
+    const [isSaved, setIsSaved] = React.useState(true);
+    console.log(isSaved);
+    const [replyCred, setReplyCred] = React.useState({
+        commentId: '',
+        replyTo: ''
+    });
+    const focusRef = React.useRef(null);
+
+    /* React.useEffect(() => {
+        const temp = savedPosts.find((post: any) => post._id === _id) ? true : false;
+        console.log(temp);
+        setIsSaved(prev => temp);
+    }, []) */
+
+    const handleSaved = () => {
+        console.log(isSaved);
+        setIsSaved(prev => !prev);
+        handleSavedPosts();
+    }
+
+    const handleLikeComment = (commentId: any) => {
+        patch(`/posts/comments/${commentId}/like`)
+        dispatch(likeComment({ _id, commentId, currentUser: { _id: currentUser._id, firstname: currentUser.firstname, lastname: currentUser.lastname, image: currentUser.image, email: currentUser.email } }))
+    }
+
+    const handleReplyFocus = (payload: any) => {
+        // patch(`/posts/comments/${commentId}/reply`)
+        console.log("@" + payload.commentedBy.firstname)
+        setReplyCred(prev => ({ replyTo: "@" + payload.commentedBy.firstname, commentId: payload._id }));
+        focusRef.current && focusRef.current.focus()
+    }
+
+    const handleReply = async ({ commentId, reply }: any) => {
+        const res = await patch(`/posts/comments/${commentId}/reply`, { reply });
+        console.log(res);
+        // const commentObj = {
+        //     comment: { comment },
+        //     commentedBy: {
+        //         ...currentUser
+        //     },
+        //     replies: []
+        // }
+        // const temp_comments = [...comments, res];
+        // console.log(temp_comments);
+        dispatch(replyToComment({ postId: _id, commentId, reply: res }));
+    }
+
+    const handleLikeReply = ({ commentId, replyId }: any) => {
+        patch(`/posts/comments/replies/${replyId}/like`)
+        dispatch(likeReply({ _id, commentId, replyId, currentUser: { _id: currentUser._id, firstname: currentUser.firstname, lastname: currentUser.lastname, image: currentUser.image, email: currentUser.email } }))
+    }
 
     return (
         <Modal
@@ -46,24 +103,24 @@ export default function BasicModal(props: any) {
         >
             <Box sx={style} display={'flex'} justifyContent='center'>
 
-                <Box maxWidth={450}>
+                <Box maxWidth={450} width={450}>
                     <CardMedia height={450} image={image} postId={_id} play={play} />
                 </Box>
-
+                <Divider orientation={'vertical'} />
                 <Stack width={350} alignItems='flex-start' sx={{ ml: 'auto' }}>
 
                     <Stack alignItems={'flex-start'}>
 
-                        <Stack width={'100%'} flexDirection={'row'} alignItems='center' justifyContent={'space-between'}>
-                            <PostCardHeader _id={_id} createdBy={createdBy} />
-                            <Typography mr={1} fontSize={12} fontWeight={400} color='#637381' fontFamily='Public Sans'>
+                        <Stack width={350} flexDirection={'row'} alignItems='center' justifyContent={'space-between'}>
+                            <PostCardHeader _id={_id} createdBy={createdBy} location={location} />
+                            <Typography mr={3} fontSize={12} fontWeight={400} color='#637381' fontFamily='Public Sans'>
                                 3 hrs
                             </Typography>
                         </Stack>
 
                         <Stack padding={'2px 16px 5px 66px'}>
                             <Typography variant='body2' fontSize={14} fontWeight={400} fontFamily='Public Sans'>
-                                The place of colorful lights with lots of darkness...
+                                {caption}
                             </Typography>
                         </Stack>
 
@@ -75,7 +132,7 @@ export default function BasicModal(props: any) {
 
                         <Stack width={'100%'} padding={'8px 16px'} gap={2}>
                             {
-                                comments?.map((cmnt: any) => <PostCardComment key={cmnt._id} {...cmnt} />)
+                                comments && [...comments].reverse().map((cmnt: any) => <PostCardComment key={cmnt._id} {...cmnt} likeComment={handleLikeComment} handleReply={handleReplyFocus} likeReply={handleLikeReply} />)
                             }
                         </Stack>
 
@@ -87,13 +144,17 @@ export default function BasicModal(props: any) {
                         <CardActions disableSpacing sx={{ py: 0, height: 30 }}>
                             <IconButton aria-label="add to favorites" onClick={handleLike} sx={{ height: 30 }}>
                                 {
-                                    likes?.includes(currentUser._id) ?
+                                    likes?.find((user: any) => user._id === currentUser._id) ?
                                         <FavoriteIcon sx={{ color: '#ff0000', height: 30 }} /> :
                                         <FavoriteBorderIcon />
                                 }
                             </IconButton>
-                            <IconButton aria-label="save post" sx={{ marginLeft: 'auto' }}>
-                                <BookmarkBorderRoundedIcon />
+                            <IconButton aria-label="save post" sx={{ marginLeft: 'auto' }} onClick={handleSaved}>
+                                {
+                                    isSaved ?
+                                        <BookmarkRoundedIcon /> :
+                                        <BookmarkBorderRoundedIcon />
+                                }
                             </IconButton>
                         </CardActions>
                         {likes?.length > 0 &&
@@ -134,7 +195,7 @@ export default function BasicModal(props: any) {
                             </Button>
 
                         </Stack> */}
-                        <CommentField />
+                        <CommentField handleComment={handleComment} handleReply={handleReply} focusRef={focusRef} replyCred={replyCred} />
 
                     </Stack>
 

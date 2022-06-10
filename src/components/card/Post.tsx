@@ -18,10 +18,9 @@ import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
-import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import { AccountCircle } from '@mui/icons-material';
-import { Box, Button, Container, Link, ListItemButton, Paper, Stack, TextField } from '@mui/material';
+import { Box, Button, Container, Grid, Link, ListItemButton, Menu, Paper, Stack, TextField } from '@mui/material';
 import Skeleton from '@mui/material/Skeleton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -31,6 +30,10 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import VisibilitySensor from 'react-visibility-sensor';
 import { useDispatch } from 'react-redux'
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import Backdrop from '@mui/material/Backdrop';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+
 
 import PostCaption from './PostCaption';
 import Actions from './PostCardActions';
@@ -41,6 +44,8 @@ import PostCardHeader from './PostCardHeader';
 import PostCardActions from './PostCardActions';
 import CommentField from './CommentField';
 import { baseURL } from '../../utils/constants/urls';
+import { patch } from '../../utils/http/httpMethods';
+import { savePost } from '../../pages/saved-posts/savePost-slice/SavedPostSlice';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -59,18 +64,32 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
         }),
     }));
 
+const emojiArr = ["😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃", "😍", "🥰", "😇", "🤩", "🤑", "🤪", "🤔"]
+
 function Post(props: any) {
 
     const dispatch = useDispatch();
     var currentUser: any = localStorage.getItem("currentUser")
     currentUser = JSON.parse(currentUser);
 
-    const { _id, caption, comments, image, likes, createdBy, createdAt } = props;
+    const { _id, caption, location, comments, image, likes, createdBy, createdAt } = props;
 
     const [loading, setLoading] = React.useState(true)
     const [expanded, setExpanded] = React.useState(false);
     const [play, setPlay] = React.useState(false);
     const [open, setOpen] = React.useState(false);
+
+
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const openMenu = Boolean(anchorEl);
+    // console.log(page)
+
+    const handleClicked = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClosed = () => {
+        setAnchorEl(null);
+    };
 
     const handleOpen = () => {
         setPlay(false)
@@ -101,29 +120,47 @@ function Post(props: any) {
     }, [comments])
 
     const handleLike = async () => {
-        const temp_likes = likes.includes(currentUser._id) ? likes.filter((uid: any) => uid !== currentUser._id) : [...likes, currentUser._id];
-        console.log({ ...props, likes: temp_likes })
-        dispatch(likePost({ ...props, likes: temp_likes }));
+        patch(`/posts/${_id}/like`);
+        // const temp_likes = likes.find((user: any) => user._id === currentUser._id) ? likes.filter((user: any) => user._id !== currentUser._id) : [...likes, { _id: currentUser._id, firstname: currentUser.firstname, lastname: currentUser.lastname, image: currentUser.image, email: currentUser.email }];
+        // console.log({ ...props, likes: temp_likes })
+        const payload = {
+            _id,
+            currentUser: {
+                _id: currentUser._id,
+                firstname: currentUser.firstname,
+                lastname: currentUser.lastname,
+                image: currentUser.image,
+                email: currentUser.email
+            }
+        }
+        dispatch(likePost(payload));
     }
 
-    const handleComment = (comment: String) => {
-        const commentObj = {
-            comment: { comment },
-            commentedBy: {
-                ...currentUser
-            },
-            replies: []
-        }
-        const temp_comments = [...comments, commentObj];
+    const handleComment = async (comment: String) => {
+        const res = await patch(`/posts/${_id}/comment`, { comment });
+        console.log(res);
+        // const commentObj = {
+        //     comment: { comment },
+        //     commentedBy: {
+        //         ...currentUser
+        //     },
+        //     replies: []
+        // }
+        const temp_comments = [...comments, res];
         console.log(temp_comments);
         dispatch(commentOnPost({ ...props, comments: temp_comments }));
+    }
+
+    const handleSavedPosts = () => {
+        patch(`/users/${currentUser._id}/savePost/${_id}`);
+        dispatch(savePost({ ...props }))
     }
 
     return (
         <Paper elevation={2} sx={{ width: 400, my: 2, fontFamily: 'Public Sans' }} >
 
-            <PostCardHeader _id={_id} createdBy={createdBy} />
-
+            <PostCardHeader _id={_id} createdBy={createdBy} location={location} />
+            <Divider />
             {image ?
                 loading ?
                     <>
@@ -131,7 +168,7 @@ function Post(props: any) {
                         <CardMedia
                             component="img"
                             width='100%'
-                            image={`${baseURL}/${image[0].filename}`}
+                            image={`${baseURL}/${image[0]?.filename}`}
                             alt="Paella dish"
                             onLoad={() => isLoaded()}
                             sx={{ objectFit: 'cover', maxHeight: '400px', display: 'none' }}
@@ -147,8 +184,9 @@ function Post(props: any) {
                 :
                 <Skeleton sx={{ width: '100%', height: '300px' }} animation="wave" variant="rectangular" />
             }
+            <Divider />
 
-            <PostCardActions handleLike={handleLike} handleOpen={handleOpen} {...props} />
+            <PostCardActions handleLike={handleLike} handleOpen={handleOpen} handleSavedPosts={handleSavedPosts} {...props} />
 
             {likes?.length > 0 &&
                 <CardContent sx={{ py: '2px' }}>
@@ -244,9 +282,92 @@ function Post(props: any) {
                     </Typography>
                 </Button>
             </Stack> */}
-            <CommentField handleComment={handleComment} />
+            {/* <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={open}
+                onClick={handleClosed}
+            > */}
+            <Menu
+                anchorEl={anchorEl}
+                id="account-menu"
+                open={openMenu}
+                onClose={handleClosed}
+                onClick={handleClosed}
+                PaperProps={{
+                    elevation: 0,
+                    sx: {
+                        overflow: 'visible',
+                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                        mt: 0.5,
+                        borderRadius: 2,
+                        '& .MuiAvatar-root': {
+                            width: 32,
+                            height: 32,
+                            ml: -0.5,
+                            mr: 1,
+                        },
+                        '&:before': {
+                            content: '""',
+                            display: 'block',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 15,
+                            width: 10,
+                            height: 10,
+                            bgcolor: 'background.paper',
+                            transform: 'translateY(50%) rotate(45deg)',
+                            zIndex: 0,
+                        },
+                    },
+                }}
+                transformOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+                anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
+            >
+                <Grid width={'250px'} container columnSpacing={0}>
+                    {
+                        emojiArr.map((emoji, index) => {
+                            return (
+                                <Grid item sm={2.4} justifyContent={'center'} alignItems={'center'}>
+                                    <IconButton>
+                                        <Avatar src={emoji} sx={{ ml: '0px' }} />
+                                    </IconButton>
+                                </Grid>
+                            )
+                        })
+                    }
+                </Grid>
+                {/* <MenuItem>
+						<Avatar /> Profile
+					</MenuItem>
+					<MenuItem>
+						<Avatar /> My account
+					</MenuItem>
+                <MenuItem>
+                    <ListItemIcon>
+                        {/* <ManageAccountsOutlinedIcon fontSize="small" />
+                    </ListItemIcon>
+                    Edit Profile
+                </MenuItem>
+                <MenuItem>
+                    <ListItemIcon>
+                        <LockResetOutlinedIcon fontSize="small" />
+                    </ListItemIcon>
+                    Change Password
+                </MenuItem>
 
-            <PostModal open={open} handleClose={handleClose} handleLike={handleLike} {...props} />
+                <Divider />
+
+                <MenuItem>
+                    <ListItemIcon>
+                        <Logout fontSize="small" />
+                    </ListItemIcon>
+                    Logout
+                </MenuItem> */}
+            </Menu>
+            {/* </Backdrop> */}
+            <CommentField handleComment={handleComment} handleClicked={handleClicked} />
+
+            <PostModal open={open} handleClose={handleClose} handleLike={handleLike} handleComment={handleComment} handleSavedPosts={handleSavedPosts} {...props} />
 
         </Paper >
     );

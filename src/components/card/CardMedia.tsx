@@ -86,7 +86,7 @@ const Media = (props: any) => {
 
     return (
         <>
-            {postId && image.length > 1 ?
+            {postId && image &&
                 <>
                     <AutoPlaySwipeableViews
                         key={postId}
@@ -146,15 +146,16 @@ const Media = (props: any) => {
                             </Button>
                         }
                     /> */}
-                </> :
+                </> /* :
                 <CardMedia
                     component="img"
                     width='100%'
+                    height={height}
                     image={`http://localhost:8080/${image?.[0].filename}`}
                     alt="Paella dish"
                     // onLoad={() => isLoaded()}
-                    sx={{ objectFit: 'cover', maxHeight: '400px' }}
-                />
+                    sx={{ objectFit: 'cover', maxHeight: '450px' }}
+                /> */
             }
 
         </>

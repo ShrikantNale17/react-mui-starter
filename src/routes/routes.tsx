@@ -7,13 +7,7 @@ const Routes = ({ component: Component, ...rest }) => (
     <Route
         {...rest}
         render={(props) => {
-            // console.log("Routes")
-            // console.log(props)
-            // console.log(authenticationService.currentUserValue && Object.keys(authenticationService.currentUserValue).length)
-            // const isLoggedIn = authenticationService.currentUserValue ? Object.keys(authenticationService.currentUserValue).length > 1 : false;
-            // console.log(isLoggedIn)
             if (!authenticationService.currentUserValue) {
-                console.log("to login")
                 return (
                     <Redirect
                         to={{
@@ -23,7 +17,6 @@ const Routes = ({ component: Component, ...rest }) => (
                     />
                 )
             } else {
-                // console.log(Component)
                 return <Component {...rest} {...props} />
             }
         }}

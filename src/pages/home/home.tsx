@@ -13,6 +13,7 @@ const Post = lazy(() => import("../../components/card/Post"))
 export default function Home() {
 
   // const [posts, setPosts] = useState([]);
+  console.log("Home")
   const posts = useSelector((state: any) => state.posts.posts)
   const dispatch = useDispatch();
 

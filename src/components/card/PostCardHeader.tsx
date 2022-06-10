@@ -8,7 +8,7 @@ import { baseURL } from '../../utils/constants/urls';
 
 const PostCardHeader = (props: any) => {
 
-    const { _id, createdBy } = props;
+    const { _id, createdBy, location } = props;
 
     return (
         <CardHeader
@@ -29,9 +29,9 @@ const PostCardHeader = (props: any) => {
                     height={25}
                     width="80%"
                 />}
-            subheader={_id ?
+            subheader={location ?
                 <Typography fontSize={12} fontWeight={400} fontFamily='Public Sans' color='#637381'>
-                    {_id}
+                    {location}
                 </Typography> :
                 <Skeleton
                     animation="wave"

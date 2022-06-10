@@ -3,8 +3,7 @@ import { Router, Switch, Route } from "react-router-dom";
 import { routes } from "../../routes/routes.config";
 import history from "../../routes/history";
 
-export default function AuthLayout() {
-  console.log("AuthLayout")
+export default function AuthLayout() { 
   return (
     <>
       <div className="bg-light min-vh-100  p-3 p-md-5">
@@ -12,7 +11,7 @@ export default function AuthLayout() {
           <Switch>
             {routes.map((item) => (
               <Route exact key={item.path} path={item.path}>
-                <item.component />
+                <item.component  />
               </Route>
             ))}
           </Switch>
